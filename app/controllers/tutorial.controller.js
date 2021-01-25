@@ -31,6 +31,7 @@ exports.createComment = (req, res) => {
     })
     .catch((err) => {
       console.log(">> Error while creating comment: ", err);
+      res.send(err);
     });
 };
 

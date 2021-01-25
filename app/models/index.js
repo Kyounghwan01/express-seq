@@ -24,6 +24,29 @@ db.comments = require("./comment.model.js")(sequelize, Sequelize);
 db.tttttt = require("./tttttt.model.js")(sequelize, Sequelize);
 db.tag = require("./tag.model.js")(sequelize, Sequelize);
 
+db.companies = require("./company.model.js")(sequelize, Sequelize);
+db.landings = require("./landing.model.js")(sequelize, Sequelize);
+db.landingImages = require("./landingImage.model.js")(sequelize, Sequelize);
+db.landingButtons = require("./landingButton.model.js")(sequelize, Sequelize);
+
+db.companies.hasMany(db.landings, { as: "landings" });
+db.landings.belongsTo(db.companies, {
+  foreignKey: "companyId",
+  as: "companies",
+});
+
+db.landings.hasMany(db.landingImages, { as: "landingImages" });
+db.landingImages.belongsTo(db.landings, {
+  foreignKey: "landingId",
+  as: "landings",
+});
+
+db.landingImages.hasMany(db.landingButtons, { as: "landingButtons" });
+db.landingButtons.belongsTo(db.landingImages, {
+  foreignKey: "landingImageId",
+  as: "landingImages",
+});
+
 db.tutorials.hasMany(db.comments, { as: "comments" });
 // key값 다르면 생성 안됨
 db.comments.belongsTo(db.tutorials, {

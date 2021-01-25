@@ -1,7 +1,12 @@
 module.exports = (app) => {
   const tutorials = require("../controllers/tutorial.controller.js");
+  const landing = require("../controllers/landing.controller.js");
 
   var router = require("express").Router();
+
+  router.post("/company", landing.createCompany);
+
+  router.get("/company", landing.getCompanies);
 
   // Create a new Tutorial
   router.post("/", tutorials.create);
