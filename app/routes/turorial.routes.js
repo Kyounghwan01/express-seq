@@ -26,5 +26,13 @@ module.exports = (app) => {
 
   router.post("/tu", tutorials.createTutorial);
 
+  router.post("/com", tutorials.createComment);
+
+  router.get("/tu/:id", tutorials.findTutorialById);
+
+  router.get("/com/:id", tutorials.findCommentById);
+
+  router.get("/tesss/q", tutorials.findAlls);
+
   app.use("/api/tutorials", router);
 };

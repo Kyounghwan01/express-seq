@@ -18,11 +18,11 @@ exports.createTutorial = (tutorial) => {
 };
 
 // Create and Save new Comments
-exports.createComment = (tutorialId, comment) => {
+exports.createComment = (tutorial_id, comment) => {
   return Comment.create({
     name: comment.name,
     text: comment.text,
-    tutorialId: tutorialId,
+    tutorial_id: tutorial_id,
   })
     .then((comment) => {
       console.log(">> Created comment: " + JSON.stringify(comment, null, 4));
@@ -34,8 +34,8 @@ exports.createComment = (tutorialId, comment) => {
 };
 
 // Get the comments for a given tutorial
-exports.findTutorialById = (tutorialId) => {
-  return Tutorial.findByPk(tutorialId, { include: ["comments"] })
+exports.findTutorialById = (tutorial_id) => {
+  return Tutorial.findByPk(tutorial_id, { include: ["comments"] })
     .then((tutorial) => {
       return tutorial;
     })

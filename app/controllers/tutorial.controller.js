@@ -1,11 +1,10 @@
 const db = require("../models");
 const Tutorial = db.tutorials;
-const Comment = db.comment;
+const Comment = db.comments;
 const Op = db.Sequelize.Op;
 
 // 새로운 튜토리얼 생성 및 저장
 exports.createTutorial = (req, res) => {
-  console.log("rrr".turorial);
   return Tutorial.create({
     title: req.body.title,
     description: req.body.description,
@@ -20,15 +19,15 @@ exports.createTutorial = (req, res) => {
 };
 
 // 새 댓글 작성 및 저장
-exports.createComment = (tutorialId, comment) => {
+exports.createComment = (req, res) => {
   return Comment.create({
-    name: comment.name,
-    text: comment.text,
-    tutorialId: tutorialId,
+    name: req.body.name,
+    text: req.body.text,
+    tutorialId: req.body.tutorialId,
   })
     .then((comment) => {
       console.log(">> Created comment: " + JSON.stringify(comment, null, 4));
-      return comment;
+      res.send(comment);
     })
     .catch((err) => {
       console.log(">> Error while creating comment: ", err);
@@ -36,9 +35,10 @@ exports.createComment = (tutorialId, comment) => {
 };
 
 // 주어진 튜토리얼에 대한 코멘트 받기
-exports.findTutorialById = (tutorialId) => {
-  return Tutorial.findByPk(tutorialId, { include: ["comments"] })
+exports.findTutorialById = (req, res) => {
+  return Tutorial.findByPk(req.params.id, { include: ["comments"] })
     .then((tutorial) => {
+      res.send(tutorial);
       return tutorial;
     })
     .catch((err) => {
@@ -46,10 +46,12 @@ exports.findTutorialById = (tutorialId) => {
     });
 };
 
-// 주어진 댓글 ID에 대한 댓글 가져 오기
-exports.findCommentById = (id) => {
-  return Comment.findByPk(id, { include: ["tutorial"] })
+// 주어진 댓글 댓 ID에 대한글 가져 오기
+exports.findCommentById = (req, res) => {
+  // include: ["tutorial"] 를 넣으면 res에 해당하는 tutorial도 같이 들어옴
+  return Comment.findByPk(req.params.id, { include: ["tutorial"] })
     .then((comment) => {
+      res.send(comment);
       return comment;
     })
     .catch((err) => {
@@ -58,10 +60,12 @@ exports.findCommentById = (id) => {
 };
 
 // 댓글 포함 튜토리얼 가져오기
-exports.findAll = () => {
+exports.findAll = (req, res) => {
   return Tutorial.findAll({
     include: ["comments"],
   }).then((tutorials) => {
+    console.log("-----------------------");
+    res.send(tutorials);
     return tutorials;
   });
 };
@@ -97,7 +101,7 @@ exports.create = (req, res) => {
 };
 
 // Retrieve all Tutorials from the database.
-exports.findAll = (req, res) => {
+exports.findAlls = (req, res) => {
   const title = req.query.title;
   // title에 title 값이 포함되는 것만 가져옴
   var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
@@ -107,6 +111,7 @@ exports.findAll = (req, res) => {
       res.send(data);
     })
     .catch((err) => {
+      res.send(err);
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving tutorials.",
