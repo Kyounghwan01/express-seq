@@ -2,6 +2,8 @@
 const db = require("../models");
 const Company = db.companies;
 const Landing = db.landings;
+const LandingImage = db.landingImages;
+const LandingButton = db.landingButtons;
 const Op = db.Sequelize.Op;
 
 exports.createCompany = (req, res) => {
@@ -75,12 +77,47 @@ exports.asdc = async (req, res) => {
     const landing = await Landing.create(params);
 
     /** landing_image 생성 */
+    const landingImageArray = [];
+    for (const el of req.body.target) {
+      const landingImageParams = {
+        landingUuid: landing.uuid,
+        type: el.type,
+        data: el.landingImage,
+        bottomButton: el.buttonButton,
+      };
+
+      const landingImage = await LandingImage.create(landingImageParams);
+      landingImageArray.push(landingImage);
+    }
 
     /** landing_button 생성 */
-    res.send(landing);
+    for (const index in req.body.target) {
+      for (const els of req.body.target[index].buttonElement) {
+        let landingButtonProps = {
+          landingImageId: landingImageArray[index].id,
+          position_x: els.positionX,
+          position_y: els.positionY,
+          width: els.width,
+          height: els.height,
+          type: els.type,
+        };
+        if (els.content) {
+          landingButtonProps = { ...landingButtonProps, content: els.content };
+        }
+        if (els.description) {
+          landingButtonProps = {
+            ...landingButtonProps,
+            description: els.description,
+          };
+        }
+
+        const landingButton = await LandingButton.create(landingButtonProps);
+      }
+    }
+
+    res.send({ isSuccess: true, landingId: landing.uuid });
   } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
+    res.status(500).json({ isSuccess: false, message: e.errors });
   }
 };
 
