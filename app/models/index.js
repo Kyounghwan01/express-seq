@@ -37,7 +37,7 @@ db.landings.belongsTo(db.companies, {
 
 db.landings.hasMany(db.landingImages, { as: "landingImages" });
 db.landingImages.belongsTo(db.landings, {
-  foreignKey: "landingId",
+  foreignKey: "landingUuid",
   as: "landings",
 });
 

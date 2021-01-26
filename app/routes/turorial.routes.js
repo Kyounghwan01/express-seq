@@ -8,6 +8,8 @@ module.exports = (app) => {
 
   router.get("/company", landing.getCompanies);
 
+  router.post("/landing", landing.asdc);
+
   // Create a new Tutorial
   router.post("/", tutorials.create);
 
