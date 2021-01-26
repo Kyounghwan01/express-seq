@@ -4,12 +4,6 @@ module.exports = (app) => {
 
   var router = require("express").Router();
 
-  router.post("/company", landing.createCompany);
-
-  router.get("/company", landing.getCompanies);
-
-  router.post("/landing", landing.asdc);
-
   // Create a new Tutorial
   router.post("/", tutorials.create);
 

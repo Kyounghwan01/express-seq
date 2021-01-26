@@ -1,4 +1,3 @@
-// 컴페니가 없다면 컴페니 생성하고 나온 id를 기반으로 다시 생성
 const db = require("../models");
 const Company = db.companies;
 const Landing = db.landings;
@@ -19,17 +18,16 @@ exports.createCompany = (req, res) => {
 };
 
 exports.getCompanies = async (req, res) => {
-  // return Company.findAll()
-  //   .then(company => {
-  //     res.send(company);
-  //     return company;
-  //   })
-  //   .catch(err => {
-  //     res.send(err);
-  //   });
-  // const com = await Company.findAll();
-  // res.send(com);
   try {
+    const company = await Company.findAll();
+    res.send(company);
+  } catch (e) {
+    res.status(500).json({ message: e.errors });
+  }
+};
+
+/**
+try {
     const company = await Company.findAll({
       where: { name: req.query.name },
       // defaults: { name: req.body.companyName },
@@ -38,9 +36,10 @@ exports.getCompanies = async (req, res) => {
   } catch (e) {
     res.send(e);
   }
-};
 
-exports.asdc = async (req, res) => {
+ */
+
+exports.createLanding = async (req, res) => {
   try {
     const {
       company,
@@ -121,28 +120,27 @@ exports.asdc = async (req, res) => {
   }
 };
 
-exports.createLanding = async (req, res) => {
-  res.send(1);
-};
-
-// select.findOrCreate = (data, callback) => {
-//   return user
-//     .findOrCreate({
-//       where: { user_id: data },
-//       defaults: { password: "5555" },
-//     })
-//     .spread((user, create) => {
-//       user && callback(user);
-//       create && callback(create);
-//     })
-//     .catch((err) => {
-//       callback(err);
-//     });
-// };
-
-// post landing
-
 // get landing
+exports.getLandings = async (req, res) => {
+  try {
+    const company = await Landing.findAll({
+      include: [
+        { model: Company, as: "companies", attributes: ["name"] },
+        {
+          model: LandingImage,
+          as: "landingImages",
+          include: [
+            { model: LandingButton, as: "landingButtons", required: false },
+          ],
+        },
+      ],
+      attributes: { exclude: ["companyId"] },
+    });
+    res.send(company);
+  } catch (e) {
+    res.status(430).send(e);
+  }
+};
 
 // list pagenation
 /**
@@ -171,5 +169,3 @@ models.post.findAll({
     } ]
 });
  */
-
-exports.createLanding = (req, res) => {};
