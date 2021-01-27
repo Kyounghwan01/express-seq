@@ -14,7 +14,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       data: {
         allowNull: false,
-        type: Sequelize.BLOB,
+        type: Sequelize.BLOB("long"),
       },
       bottomButton: {
         allowNull: false,

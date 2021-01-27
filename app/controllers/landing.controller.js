@@ -26,20 +26,22 @@ exports.getCompanies = async (req, res) => {
   }
 };
 
-/**
-try {
-    const company = await Company.findAll({
-      where: { name: req.query.name },
-      // defaults: { name: req.body.companyName },
+exports.createOrSearchCompany = async (req, res, next) => {
+  /** company table 검색 후 없으면 추가 */
+  try {
+    const companyId = await Company.findOrCreate({
+      where: { name: req.body.company },
+      defaults: { name: req.body.company },
     });
-    res.send(company);
+    req.companyId = companyId[0].id;
+    next();
   } catch (e) {
-    res.send(e);
+    res.status(500).json({ isSuccess: false, message: e.errors });
   }
+};
 
- */
-
-exports.createLanding = async (req, res) => {
+exports.createLanding = async (req, res, next) => {
+  /** landing table 추가 */
   try {
     const {
       company,
@@ -52,13 +54,8 @@ exports.createLanding = async (req, res) => {
       afcDtcd,
     } = req.body;
 
-    const companyId = await Company.findOrCreate({
-      where: { name: company },
-      defaults: { name: company },
-    });
-
     let params = {
-      companyId: companyId[0].id,
+      companyId: req.companyId,
       start_at: startAt,
       expired_at: expiredAt,
       type: type,
@@ -75,11 +72,20 @@ exports.createLanding = async (req, res) => {
     }
     const landing = await Landing.create(params);
 
-    /** landing_image 생성 */
+    req.landing = landing;
+    next();
+  } catch (e) {
+    res.status(500).json({ isSuccess: false, message: e.errors });
+  }
+};
+
+exports.createLandingImage = async (req, res, next) => {
+  /** landing_image 생성 */
+  try {
     const landingImageArray = [];
     for (const el of req.body.target) {
       const landingImageParams = {
-        landingUuid: landing.uuid,
+        landingUuid: req.landing.uuid,
         type: el.type,
         data: el.landingImage,
         bottomButton: el.buttonButton,
@@ -89,11 +95,20 @@ exports.createLanding = async (req, res) => {
       landingImageArray.push(landingImage);
     }
 
+    req.landingImageArray = landingImageArray;
+    next();
+  } catch (e) {
+    res.status(500).json({ isSuccess: false, message: e.errors });
+  }
+};
+
+exports.createLandingButton = async (req, res) => {
+  try {
     /** landing_button 생성 */
     for (const index in req.body.target) {
       for (const els of req.body.target[index].buttonElement) {
         let landingButtonProps = {
-          landingImageId: landingImageArray[index].id,
+          landingImageId: req.landingImageArray[index].id,
           position_x: els.positionX,
           position_y: els.positionY,
           width: els.width,
@@ -114,15 +129,25 @@ exports.createLanding = async (req, res) => {
       }
     }
 
-    res.send({ isSuccess: true, landingId: landing.uuid });
+    res.send({ isSuccess: true, landingId: req.landing.uuid });
   } catch (e) {
     res.status(500).json({ isSuccess: false, message: e.errors });
   }
 };
 
 // get all landing
-// todo: get landing pagenation, filter
+// todo: filter -> afccd, 구분 (event/landing), 상태 (진행중,종료)
 exports.getLandings = async (req, res) => {
+  const { currentPage } = req.query;
+  let offset = 0;
+  let limit = 10;
+
+  if (!currentPage) {
+    return res.status(400).send({ message: "currentPage가 없습니다." });
+  }
+  if (currentPage > 1) {
+    offset = 10 * (currentPage - 1);
+  }
   const includeParams = [
     {
       model: db.companies,
@@ -140,7 +165,9 @@ exports.getLandings = async (req, res) => {
 
   const landingParams = {
     include: includeParams,
-    attributes: { exclude: ["companyId"] },
+    distinct: true,
+    limit,
+    offset,
   };
 
   if (req.query.company) {
@@ -152,29 +179,16 @@ exports.getLandings = async (req, res) => {
   }
 
   try {
-    const landingList = await Landing.findAll(landingParams);
-    res.send(landingList);
+    const landingList = await Landing.findAndCountAll(landingParams);
+    res.send({
+      ...landingList,
+      currentPage,
+      totalPage: Math.floor(landingList.count / limit) + 1,
+    });
   } catch (e) {
     res.status(500).send(e);
   }
 };
-
-// list pagenation
-/**
- *
- let pageNum = req.query.page; // 요청 페이지 넘버
-let offset = 0;
-
-if(pageNum > 1){
-  offset = 10 * (pageNum - 1);
-}
-
-models.post.findAll({
-  // pagination
-  offset: offset,
-  limit: 10
-})
- */
 
 // where filter
 /**

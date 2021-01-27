@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 const app = express();
+global.__basedir = __dirname;
 
 var corsOptions = {
   origin: ["http://localhost:5000", "http://172.29.11.96:5000"],
@@ -18,11 +19,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const db = require("./app/models");
 
-db.sequelize.sync();
+// db.sequelize.sync();
 
-// db.sequelize.sync({ force: true }).then(() => {
-//   console.log("Drop and re-sync db.");
-// });
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Drop and re-sync db.");
+});
 
 require("./app/routes/turorial.routes")(app);
 require("./app/routes/landing.routes")(app);

@@ -70,4 +70,6 @@ db.tutorials.belongsToMany(db.tag, {
   foreignKey: "tutorial_id",
 });
 
+db.images = require("./image.model.js")(sequelize, Sequelize);
+
 module.exports = db;
