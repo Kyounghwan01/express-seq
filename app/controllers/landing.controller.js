@@ -120,25 +120,42 @@ exports.createLanding = async (req, res) => {
   }
 };
 
-// get landing
+// get all landing
+// todo: get landing pagenation, filter
 exports.getLandings = async (req, res) => {
-  try {
-    const company = await Landing.findAll({
+  const includeParams = [
+    {
+      model: db.companies,
+      as: "companies",
+      attributes: ["name"],
+    },
+    {
+      model: db.landingImages,
+      as: "landingImages",
       include: [
-        { model: Company, as: "companies", attributes: ["name"] },
-        {
-          model: LandingImage,
-          as: "landingImages",
-          include: [
-            { model: LandingButton, as: "landingButtons", required: false },
-          ],
-        },
+        { model: db.landingButtons, as: "landingButtons", required: false },
       ],
-      attributes: { exclude: ["companyId"] },
-    });
-    res.send(company);
+    },
+  ];
+
+  const landingParams = {
+    include: includeParams,
+    attributes: { exclude: ["companyId"] },
+  };
+
+  if (req.query.company) {
+    includeParams[0].where = { name: req.query.company };
+  }
+
+  if (req.query.afccd) {
+    landingParams.where = { afccd: req.query.afccd };
+  }
+
+  try {
+    const landingList = await Landing.findAll(landingParams);
+    res.send(landingList);
   } catch (e) {
-    res.status(430).send(e);
+    res.status(500).send(e);
   }
 };
 
@@ -169,3 +186,31 @@ models.post.findAll({
     } ]
 });
  */
+
+exports.getLandingById = async (req, res) => {
+  const { id } = req.params;
+  if (!id) return res.status(400).send({ message: "id가 없습니다" });
+
+  try {
+    const landing = await Landing.findByPk(id, {
+      include: [
+        {
+          model: db.companies,
+          as: "companies",
+          attributes: ["name"],
+        },
+        {
+          model: db.landingImages,
+          as: "landingImages",
+          include: [
+            { model: db.landingButtons, as: "landingButtons", required: false },
+          ],
+        },
+      ],
+    });
+    res.send(landing);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send(e);
+  }
+};

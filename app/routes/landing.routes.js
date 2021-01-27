@@ -7,6 +7,8 @@ module.exports = (app) => {
 
   router.get("/", landing.getLandings);
 
+  router.get("/:id", landing.getLandingById);
+
   router.get("/company", landing.getCompanies);
 
   app.use("/api/landings", router);
