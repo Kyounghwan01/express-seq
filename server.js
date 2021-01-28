@@ -13,17 +13,16 @@ var corsOptions = {
 app.use(cors(corsOptions));
 app.use(morgan("dev"));
 
-app.use(bodyParser.json());
-
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 const db = require("./app/models");
 
-// db.sequelize.sync();
+db.sequelize.sync();
 
-db.sequelize.sync({ force: true }).then(() => {
-  console.log("Drop and re-sync db.");
-});
+// db.sequelize.sync({ force: true }).then(() => {
+//   console.log("Drop and re-sync db.");
+// });
 
 require("./app/routes/turorial.routes")(app);
 require("./app/routes/landing.routes")(app);

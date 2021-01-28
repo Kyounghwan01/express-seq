@@ -1,3 +1,4 @@
+const moment = require("moment");
 const db = require("../models");
 const Company = db.companies;
 const Landing = db.landings;
@@ -44,7 +45,6 @@ exports.createLanding = async (req, res, next) => {
   /** landing table 추가 */
   try {
     const {
-      company,
       startAt,
       expiredAt,
       type,
@@ -88,7 +88,7 @@ exports.createLandingImage = async (req, res, next) => {
         landingUuid: req.landing.uuid,
         type: el.type,
         data: el.landingImage,
-        bottomButton: el.buttonButton,
+        bottomButton: el.bottomButton,
       };
 
       const landingImage = await LandingImage.create(landingImageParams);
@@ -109,20 +109,14 @@ exports.createLandingButton = async (req, res) => {
       for (const els of req.body.target[index].buttonElement) {
         let landingButtonProps = {
           landingImageId: req.landingImageArray[index].id,
-          position_x: els.positionX,
-          position_y: els.positionY,
+          position_x: els.x,
+          position_y: els.y,
           width: els.width,
           height: els.height,
-          type: els.type,
+          type: els.action.type,
         };
-        if (els.content) {
-          landingButtonProps = { ...landingButtonProps, content: els.content };
-        }
-        if (els.description) {
-          landingButtonProps = {
-            ...landingButtonProps,
-            description: els.description,
-          };
+        if (els.action.text) {
+          landingButtonProps = { ...landingButtonProps, text: els.action.text };
         }
 
         const landingButton = await LandingButton.create(landingButtonProps);
@@ -136,7 +130,6 @@ exports.createLandingButton = async (req, res) => {
 };
 
 // get all landing
-// todo: filter -> afccd, 구분 (event/landing), 상태 (진행중,종료)
 exports.getLandings = async (req, res) => {
   const { currentPage } = req.query;
   let offset = 0;
@@ -178,6 +171,33 @@ exports.getLandings = async (req, res) => {
     landingParams.where = { afccd: req.query.afccd };
   }
 
+  if (req.query.landingType) {
+    landingParams.where = {
+      ...landingParams.where,
+      type: req.query.landingType,
+    };
+  }
+
+  if (req.query.statueType) {
+    if (req.query.statueType === "inprogress") {
+      landingParams.where = {
+        ...landingParams.where,
+        start_at: { [Op.lt]: moment().toDate() },
+        expired_at: { [Op.gt]: moment().subtract(1, "days").toDate() },
+      };
+    } else if (req.query.statueType === "expired") {
+      landingParams.where = {
+        ...landingParams.where,
+        expired_at: { [Op.lt]: moment().subtract(1, "days").toDate() },
+      };
+    } else if (req.query.statueType === "planned") {
+      landingParams.where = {
+        ...landingParams.where,
+        start_at: { [Op.gt]: moment().toDate() },
+      };
+    }
+  }
+
   try {
     const landingList = await Landing.findAndCountAll(landingParams);
     res.send({
@@ -189,17 +209,6 @@ exports.getLandings = async (req, res) => {
     res.status(500).send(e);
   }
 };
-
-// where filter
-/**
- * 
- * PostModel.findAll({
-    include: [ {
-        model: TagModel, 
-        where: { $and: [ { title: 'cheap' }, { title: 'cars' } ] } 
-    } ]
-});
- */
 
 exports.getLandingById = async (req, res) => {
   const { id } = req.params;

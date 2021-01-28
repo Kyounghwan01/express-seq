@@ -28,10 +28,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      content: {
-        type: Sequelize.STRING,
-      },
-      description: {
+      text: {
         type: Sequelize.STRING,
       },
     },
