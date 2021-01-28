@@ -1,3 +1,5 @@
+const fs = require("fs").promises;
+
 const moment = require("moment");
 const db = require("../models");
 const Company = db.companies;
@@ -52,14 +54,16 @@ exports.createLanding = async (req, res, next) => {
       afccd,
       afcDtFlgcd,
       afcDtcd,
+      title,
     } = req.body;
 
     let params = {
       companyId: req.companyId,
       start_at: startAt,
       expired_at: expiredAt,
-      type: type,
+      type,
       created_by: createdBy,
+      title,
     };
     if (afccd) {
       params = { ...params, afccd };
@@ -178,19 +182,21 @@ exports.getLandings = async (req, res) => {
     };
   }
 
-  if (req.query.statueType) {
-    if (req.query.statueType === "inprogress") {
+  if (req.query.statusType) {
+    if (req.query.statusType === "inProgress") {
       landingParams.where = {
         ...landingParams.where,
         start_at: { [Op.lt]: moment().toDate() },
         expired_at: { [Op.gt]: moment().subtract(1, "days").toDate() },
       };
-    } else if (req.query.statueType === "expired") {
+    } else if (req.query.statusType === "expired") {
+      // await fs.unlink("app/static/assets/1611812564872-bezkoder-image.jpg");
+
       landingParams.where = {
         ...landingParams.where,
         expired_at: { [Op.lt]: moment().subtract(1, "days").toDate() },
       };
-    } else if (req.query.statueType === "planned") {
+    } else if (req.query.statusType === "planned") {
       landingParams.where = {
         ...landingParams.where,
         start_at: { [Op.gt]: moment().toDate() },
@@ -232,6 +238,21 @@ exports.getLandingById = async (req, res) => {
       ],
     });
     res.send(landing);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send(e);
+  }
+};
+
+exports.deleteLandingById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Landing.destroy({
+      where: {
+        uuid: id,
+      },
+    });
+    res.send({ message: "success" });
   } catch (e) {
     console.log(e);
     res.status(500).send(e);

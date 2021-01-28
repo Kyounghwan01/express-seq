@@ -41,5 +41,7 @@ module.exports = (app) => {
     }
   });
 
+  router.delete("/:id", landing.deleteLandingById);
+
   app.use("/api/landings", router);
 };
