@@ -24,7 +24,6 @@ db.sequelize.sync();
 //   console.log("Drop and re-sync db.");
 // });
 
-require("./app/routes/turorial.routes")(app);
 require("./app/routes/landing.routes")(app);
 
 const PORT = process.env.PORT || 8080;

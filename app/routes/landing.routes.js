@@ -3,6 +3,7 @@ module.exports = (app) => {
   const db = require("../models");
   const Image = db.images;
   const landing = require("../controllers/landing.controller.js");
+  const landingUpdate = require("../controllers/landingUpdate.controller.js");
   const upload = require("../middleware/upload");
   const fs = require("fs");
 
@@ -18,7 +19,7 @@ module.exports = (app) => {
 
   router.get("/", landing.getLandings);
 
-  router.get("/:id", landing.getLandingById);
+  router.get("/landing/:id", landing.getLandingById);
 
   router.get("/company", landing.getCompanies);
 
@@ -42,6 +43,14 @@ module.exports = (app) => {
   });
 
   router.delete("/:id", landing.deleteLandingById);
+
+  router.put(
+    "/:id",
+    landing.createOrSearchCompany,
+    landingUpdate.updateLanding,
+    landingUpdate.updateLandingImage,
+    landingUpdate.updateLandingButton
+  );
 
   app.use("/api/landings", router);
 };

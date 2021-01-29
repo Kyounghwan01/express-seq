@@ -64,16 +64,11 @@ exports.createLanding = async (req, res, next) => {
       type,
       created_by: createdBy,
       title,
+      afccd,
+      afcDtFlgcd,
+      afcDtcd,
     };
-    if (afccd) {
-      params = { ...params, afccd };
-    }
-    if (afcDtFlgcd) {
-      params = { ...params, afcDtFlgcd };
-    }
-    if (afcDtcd) {
-      params = { ...params, afcDtcd };
-    }
+
     const landing = await Landing.create(params);
 
     req.landing = landing;
@@ -118,12 +113,10 @@ exports.createLandingButton = async (req, res) => {
           width: els.width,
           height: els.height,
           type: els.action.type,
+          text: els.action.text,
         };
-        if (els.action.text) {
-          landingButtonProps = { ...landingButtonProps, text: els.action.text };
-        }
 
-        const landingButton = await LandingButton.create(landingButtonProps);
+        await LandingButton.create(landingButtonProps);
       }
     }
 

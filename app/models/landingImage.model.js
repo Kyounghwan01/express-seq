@@ -11,14 +11,23 @@ module.exports = (sequelize, Sequelize) => {
       type: {
         allowNull: false,
         type: Sequelize.STRING,
+        validate: {
+          notEmpty: true,
+        },
       },
       data: {
         allowNull: false,
         type: Sequelize.BLOB("long"),
+        validate: {
+          notEmpty: true,
+        },
       },
       bottomButton: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
+        validate: {
+          notEmpty: true,
+        },
       },
     },
     {

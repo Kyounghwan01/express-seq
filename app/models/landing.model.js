@@ -11,6 +11,9 @@ module.exports = (sequelize, Sequelize) => {
       title: {
         allowNull: false,
         type: Sequelize.STRING,
+        validate: {
+          notEmpty: true,
+        },
       },
       afccd: {
         type: Sequelize.STRING,
@@ -24,18 +27,36 @@ module.exports = (sequelize, Sequelize) => {
       start_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        validate: {
+          notEmpty: true,
+        },
       },
       expired_at: {
         allowNull: false,
         type: Sequelize.DATE,
+        validate: {
+          notEmpty: true,
+        },
       },
       type: {
         allowNull: false,
         type: Sequelize.STRING,
+        validate: {
+          notEmpty: true,
+        },
       },
       created_by: {
         allowNull: false,
         type: Sequelize.STRING,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      updated_by: {
+        type: Sequelize.STRING,
+        validate: {
+          notEmpty: true,
+        },
       },
     },
     {
