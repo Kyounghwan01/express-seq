@@ -56,6 +56,4 @@ db.landingButtons.belongsTo(db.landingImages, {
   hooks: true,
 });
 
-db.images = require("./image.model.js")(sequelize, Sequelize);
-
 module.exports = db;

@@ -1,11 +1,11 @@
 module.exports = (app) => {
   const { resolve } = require("path");
   const db = require("../models");
-  const Image = db.images;
   const landing = require("../controllers/landing.controller.js");
   const landingUpdate = require("../controllers/landingUpdate.controller.js");
   const upload = require("../middleware/upload");
   const fs = require("fs");
+  const fsPromise = require("fs").promises;
 
   var router = require("express").Router();
 
@@ -29,16 +29,14 @@ module.exports = (app) => {
         .readFileSync(`app${req.file.path.split("app")[1]}`)
         .toString("base64");
 
-      const ress = await Image.create({
-        path: imgData,
-      });
-
       res.json({
         success: true,
         path: imgData,
       });
     } catch (err) {
       res.status(400).json({ success: false, message: err.message });
+    } finally {
+      await fsPromise.unlink(`app${req.file.path.split("app")[1]}`);
     }
   });
 

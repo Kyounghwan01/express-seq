@@ -158,6 +158,7 @@ exports.getLandings = async (req, res) => {
     distinct: true,
     limit,
     offset,
+    order: [["updatedAt", "DESC"]],
   };
 
   if (req.query.company) {
@@ -183,8 +184,6 @@ exports.getLandings = async (req, res) => {
         expired_at: { [Op.gt]: moment().subtract(1, "days").toDate() },
       };
     } else if (req.query.statusType === "expired") {
-      // await fs.unlink("app/static/assets/1611812564872-bezkoder-image.jpg");
-
       landingParams.where = {
         ...landingParams.where,
         expired_at: { [Op.lt]: moment().subtract(1, "days").toDate() },
@@ -230,6 +229,8 @@ exports.getLandingById = async (req, res) => {
         },
       ],
     });
+    if (!landing)
+      res.send({ message: "랜딩 페이지가 없습니다", noLanding: true });
     res.send(landing);
   } catch (e) {
     console.log(e);
