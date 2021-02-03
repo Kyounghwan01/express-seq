@@ -11,6 +11,7 @@ module.exports = (app) => {
 
   router.post(
     "/",
+    landing.checkvalidation,
     landing.createOrSearchCompany,
     landing.createLanding,
     landing.createLandingImage,

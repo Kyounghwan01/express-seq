@@ -10,6 +10,7 @@ var corsOptions = {
   origin: [
     "http://localhost:5000",
     "http://172.29.11.96:5000",
+    "http://172.29.11.96:3000",
     "http://localhost:3000",
   ],
   credentials: true,

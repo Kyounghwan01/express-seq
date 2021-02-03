@@ -42,11 +42,9 @@ exports.updateLanding = async (req, res, next) => {
     };
 
     await Landing.update(params, { where: { uuid: id } });
-
     next();
   } catch (e) {
-    console.log(e);
-    res.status(500).json({ isSuccess: false, message: e.errors });
+    res.status(500).json({ isSuccess: false, message: e.toString() });
   }
 };
 
@@ -93,19 +91,11 @@ exports.updateLandingImage = async (req, res, next) => {
 
     next();
   } catch (e) {
-    res.status(500).json({ isSuccess: false, message: e.errors });
+    res.status(500).json({ isSuccess: false, message: e.toString() });
   }
 };
 
 exports.updateLandingButton = async (req, res) => {
-  const params = {
-    position_x: button.x,
-    position_y: button.y,
-    width: button.width,
-    height: button.height,
-    type: button.action.type,
-    text: button.action.text,
-  };
   try {
     for (const img of req.body.target) {
       if (img.id) {
@@ -125,6 +115,14 @@ exports.updateLandingButton = async (req, res) => {
 
         // req의 버튼에 id가 없다면 새로운 버튼 생성
         for (const button of img.buttonElement) {
+          const params = {
+            position_x: button.x,
+            position_y: button.y,
+            width: button.width,
+            height: button.height,
+            type: button.action.type,
+            text: button.action.text,
+          };
           if (!button.id) {
             await LandingButton.create({ ...params, landingImageId: img.id });
           } else {
@@ -142,6 +140,14 @@ exports.updateLandingButton = async (req, res) => {
       } else {
         // landimg img가 새로운 값이면 무조건 버튼 생성
         for (button of img.buttonElement) {
+          const params = {
+            position_x: button.x,
+            position_y: button.y,
+            width: button.width,
+            height: button.height,
+            type: button.action.type,
+            text: button.action.text,
+          };
           await LandingButton.create({
             ...params,
             landingImageId: req.newLandingImgId,
@@ -168,6 +174,6 @@ exports.updateLandingButton = async (req, res) => {
     });
     res.send({ isSuccess: true, data: landing });
   } catch (e) {
-    res.status(500).json({ isSuccess: false, message: e.message });
+    res.status(500).json({ isSuccess: false, message: e.toString() });
   }
 };

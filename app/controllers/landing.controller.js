@@ -25,8 +25,17 @@ exports.getCompanies = async (req, res) => {
     const company = await Company.findAll();
     res.send(company);
   } catch (e) {
-    res.status(500).json({ message: e.errors });
+    res.status(500).json({ message: e.toString() });
   }
+};
+
+exports.checkvalidation = async (req, res, next) => {
+  if (!req.body.target.length) {
+    return res
+      .status(400)
+      .send({ message: "적어도 하나의 랜딩페이지가 존재해야합니다" });
+  }
+  next();
 };
 
 exports.createOrSearchCompany = async (req, res, next) => {
@@ -39,7 +48,8 @@ exports.createOrSearchCompany = async (req, res, next) => {
     req.companyId = companyId[0].id;
     next();
   } catch (e) {
-    res.status(500).json({ isSuccess: false, message: e.errors });
+    console.log(3333, e);
+    res.status(500).json({ isSuccess: false, message: e.toString() });
   }
 };
 
@@ -74,7 +84,7 @@ exports.createLanding = async (req, res, next) => {
     req.landing = landing;
     next();
   } catch (e) {
-    res.status(500).json({ isSuccess: false, message: e.errors });
+    res.status(500).json({ isSuccess: false, message: e.toString() });
   }
 };
 
@@ -97,7 +107,7 @@ exports.createLandingImage = async (req, res, next) => {
     req.landingImageArray = landingImageArray;
     next();
   } catch (e) {
-    res.status(500).json({ isSuccess: false, message: e.errors });
+    res.status(500).json({ isSuccess: false, message: e.toString() });
   }
 };
 
@@ -122,7 +132,7 @@ exports.createLandingButton = async (req, res) => {
 
     res.send({ isSuccess: true, landingId: req.landing.uuid });
   } catch (e) {
-    res.status(500).json({ isSuccess: false, message: e.errors });
+    res.status(500).json({ isSuccess: false, message: e.toString(), test: 1 });
   }
 };
 
@@ -147,9 +157,10 @@ exports.getLandings = async (req, res) => {
     {
       model: db.landingImages,
       as: "landingImages",
-      include: [
-        { model: db.landingButtons, as: "landingButtons", required: false },
-      ],
+      // include: [
+      //   { model: db.landingButtons, as: "landingButtons", required: false },
+      // ],
+      attributes: { exclude: ["data"] },
     },
   ];
 
@@ -204,7 +215,7 @@ exports.getLandings = async (req, res) => {
       totalPage: Math.floor(landingList.count / limit) + 1,
     });
   } catch (e) {
-    res.status(500).send(e);
+    res.status(500).send(e.toString());
   }
 };
 
@@ -234,21 +245,26 @@ exports.getLandingById = async (req, res) => {
     res.send(landing);
   } catch (e) {
     console.log(e);
-    res.status(500).send(e);
+    res.status(500).send(e.toString());
   }
 };
 
 exports.deleteLandingById = async (req, res) => {
   const { id } = req.params;
   try {
-    await Landing.destroy({
+    const result = await Landing.destroy({
       where: {
         uuid: id,
       },
     });
-    res.send({ message: "success" });
+    if (result) {
+      res.send({ message: "success", isSuccess: true });
+    } else {
+      res
+        .status(200)
+        .send({ message: "제거할 랜딩페이지가 없습니다.", isSuccess: false });
+    }
   } catch (e) {
-    console.log(e);
-    res.status(500).send(e);
+    res.status(500).send(e.toString());
   }
 };
