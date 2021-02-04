@@ -1,5 +1,3 @@
-const fs = require("fs").promises;
-
 const moment = require("moment");
 const db = require("../models");
 const Company = db.companies;
@@ -252,11 +250,25 @@ exports.getLandingById = async (req, res) => {
 exports.deleteLandingById = async (req, res) => {
   const { id } = req.params;
   try {
+    const company = await Landing.findOne({
+      where: { uuid: id },
+    });
     const result = await Landing.destroy({
       where: {
         uuid: id,
       },
     });
+    const isHaveLanding = await Landing.findAll({
+      where: { companyId: company.companyId },
+    });
+    if (!isHaveLanding.length) {
+      Company.destroy({
+        where: {
+          id: company.companyId,
+        },
+      });
+    }
+
     if (result) {
       res.send({ message: "success", isSuccess: true });
     } else {
