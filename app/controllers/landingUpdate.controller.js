@@ -1,12 +1,7 @@
-const fs = require("fs").promises;
-const landing = require("../controllers/landing.controller.js");
-
-const moment = require("moment");
 const db = require("../models");
 const Landing = db.landings;
 const LandingImage = db.landingImages;
 const LandingButton = db.landingButtons;
-const Op = db.Sequelize.Op;
 
 exports.updateLanding = async (req, res, next) => {
   try {
@@ -139,7 +134,7 @@ exports.updateLandingButton = async (req, res) => {
         }
       } else {
         // landimg img가 새로운 값이면 무조건 버튼 생성
-        for (button of img.buttonElement) {
+        for (const button of img.buttonElement) {
           const params = {
             position_x: button.x,
             position_y: button.y,

@@ -1,6 +1,4 @@
 module.exports = (app) => {
-  const { resolve } = require("path");
-  const db = require("../models");
   const landing = require("../controllers/landing.controller.js");
   const landingUpdate = require("../controllers/landingUpdate.controller.js");
   const upload = require("../middleware/upload");
@@ -24,7 +22,7 @@ module.exports = (app) => {
 
   router.get("/company", landing.getCompanies);
 
-  router.post("/upload", upload, async (req, res, next) => {
+  router.post("/upload", upload, async (req, res) => {
     try {
       const imgData = fs
         .readFileSync(`app${req.file.path.split("app")[1]}`)
